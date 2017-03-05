@@ -4,6 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 /**
@@ -25,6 +27,40 @@ public class PhoneListenerService extends Service {
         super.onCreate();
         Log.d(TAG, "onCreate: 服务被创建了 ");
 
+        // 监听电话
+        // 1.创建电话管理者实例
+        TelephonyManager tmanager = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+
+        // 2.监听电话状态的改变
+        tmanager.listen(new MyPhoneStateListener(), PhoneStateListener.LISTEN_CALL_STATE);
+
+    }
+
+    /**
+     * 监听电话状态
+     */
+    private class MyPhoneStateListener extends PhoneStateListener {
+
+        // 当电话状态发生改变时
+        @Override
+        public void onCallStateChanged(int state, String incomingNumber) {
+            super.onCallStateChanged(state, incomingNumber);
+
+            // 电话状态
+            switch (state) {
+                case TelephonyManager.CALL_STATE_IDLE: // 空闲状态
+                    break;
+                case TelephonyManager.CALL_STATE_RINGING: // 响铃状态
+
+                    Log.d(TAG, "onCallStateChanged: 准备录音机");
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK: // 接听状态
+
+                    Log.d(TAG, "onCallStateChanged: 开始录音。。。");
+                    break;
+
+            }
+        }
     }
 
     @Override
